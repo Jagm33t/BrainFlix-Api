@@ -4,7 +4,7 @@ const cors = require("cors");
 const Videos = require('./routes/Videos');
 //Images served as static assets
 app.use(express.static('./public'));
-
+app.use(express.json());
 app.use(cors());
 
 const port = 8080;
