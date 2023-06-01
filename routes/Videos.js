@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 //importing data
 const videoData = require("../data/video-details.json");
-
 const fs = require("fs");
-
 const uuid = require("uuid");
+// const myImage = require("../public/images/image0.jpeg")
+const hostPath = "http://localhost:8080/images/";
 
 router.get("/", (req, res) => {
   // res.json(videoData);
@@ -14,7 +14,7 @@ router.get("/", (req, res) => {
       id: video.id,
       title: video.title,
       channel: video.channel,
-      image: video.image,
+      image: hostPath + video.image,
     };
   });
   //response with status and video details
@@ -28,9 +28,25 @@ router.get("/:videoId", (req, res) => {
   const videoActive = videoData.find((video) => {
     return video.id === videoId;
   });
-  //response with status and video details
-  res.status(200).send(videoActive);
+ 
+  // Check if the video is found
+  if (!videoActive) {
+    return res.status(404).send("Video not found");
+  }
+
+  // Create the updated video object
+  const updatedVideoActive = {
+    ...videoActive,
+    image: hostPath + videoActive.image,
+  };
+
+  // Response with status and updated video details
+  res.status(200).send(updatedVideoActive);
 });
+
+
+
+
 // router.post("/", (req, res) => {
 //   res.json(videoData);
 // });
@@ -47,12 +63,12 @@ router.post("/", (req, res) => {
     id: uuid.v4(),//generating random id
     title: title,
     channel: "Jagmeet Singh",
-    image: "",
+    image: "image0.jpeg",
     description: description,
     views: "12345",
     likes: "890,135",
     duration: "4:01",
-    video: "https://project-2-api.herokuapp.com/stream",
+    video: "image0.jpeg",
     timestamp: Date.now(),
     comments: [
       {
@@ -61,7 +77,7 @@ router.post("/", (req, res) => {
         comment:
           "There have been a few players described as the new George Best over the years, but this is the first time it's been a compliment to me",
         likes: 0,
-        timestamp: 1626032763000,
+        timestamp: Date.now(),
       },
     ],
   };
