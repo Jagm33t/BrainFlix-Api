@@ -7,6 +7,32 @@ const uuid = require("uuid");
 // const myImage = require("../public/images/image0.jpeg")
 const hostPath = "http://localhost:8080/images/";
 
+
+// Using function to get time period 
+const timeDifference = (timestamp ) => {
+  //Current date
+  const now = new Date();
+  //Date from data
+  const commentTime = new Date(timestamp);
+  //  difference in seconds calculation
+  const differenceSeconds = Math.floor((now - commentTime) / 1000);
+
+  if (differenceSeconds < 60) {
+    return `${differenceSeconds} seconds ago`;
+ //Result in Minutes
+  } else if (differenceSeconds < 3600) {
+    const differenceMinutes = Math.floor(differenceSeconds / 60);
+    return `${differenceMinutes} minutes ago`;
+//Result in  Hours 
+  } else if (differenceSeconds < 86400) {
+    const differenceHours = Math.floor(differenceSeconds / 3600);
+    return `${differenceHours} hours ago`;
+  } else {//3600 * 24 gives days
+    const differenceDays = Math.floor(differenceSeconds / 86400);
+    return `${differenceDays} days ago`;
+  }
+};
+
 router.get("/", (req, res) => {
   // res.json(videoData);
   const newVideo = videoData.map((video) => {
@@ -46,12 +72,39 @@ router.get("/:videoId", (req, res) => {
 
 
 
+router.post("/:videoId", (req, res) => {
+  const videoId = req.params.videoId;
+  console.log("Received POST request for videoId:", videoId);
 
-// router.post("/", (req, res) => {
-//   res.json(videoData);
-// });
+  const { comment } = req.body;
+  console.log("Received comment:", comment);
 
-// router.get('/:videoId/comments')
+  // Find the video object with the matching videoId
+  const video = videoData.find((video) => video.id === videoId);
+
+  // Check if the video is found
+  if (!video) {
+    return res.status(404).send("Video not found");
+  }
+
+  // Create a new comment object
+  const newComment = {
+    id: uuid.v4(),
+    name: "John Doe", // Example name
+    comment: comment,
+    likes: 0,
+    timestamp: timeDifference(Date.now()),
+  };
+
+  // Add the new comment to the video's comments array
+  video.comments.unshift(newComment);
+
+  // Write the updated videoData array to the JSON file
+  fs.writeFileSync("./data/video-details.json", JSON.stringify(videoData));
+
+  // Send the new comment as the response
+  res.json(newComment);
+});
 
 router.post("/", (req, res) => {
 
