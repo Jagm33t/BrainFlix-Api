@@ -71,6 +71,29 @@ router.get("/:videoId", (req, res) => {
 });
 
 
+router.delete('/:videoId/comments/:commentId', (req, res) => {
+  const videoId = req.params.videoId;
+  const commentId = req.params.commentId;
+
+  // Find the video by ID
+  const video = videoData.find(video => video.id === videoId);
+
+  if (!video) {
+    return res.status(404).json({ error: 'Video not found' });
+  }
+
+  // Find the index of the comment within the video's comments array
+  const commentIndex = video.comments.findIndex(comment => comment.id === commentId);
+
+  if (commentIndex === -1) {
+    return res.status(404).json({ error: 'Comment not found' });
+  }
+
+  // Remove the comment from the video's comments array
+  video.comments.splice(commentIndex, 1);
+
+  return res.sendStatus(200);
+});
 
 router.post("/:videoId", (req, res) => {
   const videoId = req.params.videoId;
