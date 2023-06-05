@@ -48,7 +48,7 @@ router.get("/", (req, res) => {
 });
 
 router.get("/:videoId", (req, res) => {
-  // res.json(videoData);
+  
 
   const videoId = req.params.videoId;
   const videoActive = videoData.find((video) => {
@@ -161,5 +161,30 @@ router.post("/", (req, res) => {
   fs.writeFileSync("./data/video-details.json", JSON.stringify(videoData));
   res.json(newVid);
 });
+
+router.put('/:videoId/likes', (req, res) => {
+  const { videoId } = req.params;
+
+  // Find the video in the database by videoId
+  Video.findByIdAndUpdate(
+    videoId,
+    { $inc: { likes: 1 } }, // Increment the like count by 1
+    { new: true } // Return the updated video
+  )
+    .then((updatedVideo) => {
+      if (!updatedVideo) {
+        // Video not found
+        return res.status(404).json({ error: 'Video not found' });
+      }
+
+      res.json({ success: true, video: updatedVideo });
+    })
+    .catch((error) => {
+      console.error('Error updating like:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    });
+});
+
+
 
 module.exports = router;
